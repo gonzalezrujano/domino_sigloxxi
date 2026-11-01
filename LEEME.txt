@@ -1,0 +1,27 @@
+APP DE DOMINÓ - CÓMO PUBLICARLA PARA QUE TUS AMIGOS LA INSTALEN
+================================================================
+
+Esta carpeta ya está lista ("compilada"). No hay que instalar nada en la computadora.
+
+QUÉ HAY AQUÍ
+- index.html ............ la app (es la que se abre)
+- manifest.json, sw.js .. hacen que se pueda instalar con ícono y funcione sin internet
+- icon-*.png ............ el ícono de la app
+- Dominó (sin internet, para WhatsApp).html ... versión de un solo archivo para mandar por WhatsApp
+
+PARA QUE SE INSTALE CON ÍCONO
+Hay que subir TODA esta carpeta a un sitio web con "https" (por ejemplo una carpeta
+"domino" en el hosting del colegio, o GitHub Pages / Netlify, que son gratis).
+Después se manda el enlace, por ejemplo:  https://colegiosigloxxi.net/domino/
+
+LO QUE HACE TU AMIGO
+1. Abre el enlace en Chrome.
+2. Arriba le sale una barra amarilla: toca "📲 Instalar".
+3. Listo: queda el ícono del Dominó en su pantalla y funciona sin internet.
+
+IMPORTANTE
+- Si se abre index.html directo desde la computadora o el teléfono (sin subirlo a un
+  sitio web), el juego funciona, pero NO aparece el botón de instalar: eso solo lo
+  permiten los teléfonos cuando la app está publicada en internet con https.
+- Para probar ya mismo, manda por WhatsApp el archivo
+  "Dominó (sin internet, para WhatsApp).html": se abre con Chrome y se juega.
