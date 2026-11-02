@@ -33,7 +33,7 @@ body{display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(saf
 .side.l{left:0}.side.r{right:0;align-items:flex-end}
 .side .bk{flex-wrap:wrap;max-width:80px}
 #board svg{width:100%;height:100%;display:block}
-#board{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:2px 0;overflow:hidden;min-height:0;min-width:0}
+#board{flex:1;padding-bottom:52px!important;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:2px 0;overflow:hidden;min-height:0;min-width:0}
 #board .bw{display:flex;flex-direction:column;gap:4px}
 #board .br{display:flex;align-items:center;gap:3px}
 #board .br.rv{justify-content:flex-end}
@@ -255,7 +255,7 @@ function seat(p,reveal){
   return '<span>'+NAMES[p]+'</span>'+inner;
 }
 /* ---------- mesa: salida en el centro, 4 fichas por lado y luego en S ---------- */
-const BOUND=9.15; // media anchura de la mesa en unidades (1 unidad = media ficha)
+let BOUND=9.15; // media anchura de la mesa en unidades (1 unidad = media ficha); se ajusta a la pantalla
 function chainRects(h){
   const B=h.B,o=h.o||0,out=[];
   const c=B[o],cd=c[0]===c[1];
@@ -302,9 +302,17 @@ function pipsSVG(n,x,y,rot){return PXY[n].map(([u,v])=>{if(rot){const t=u;u=v;v=
 function renderBoard(h){
   const el=$("board");
   if(!h.B.length){el.innerHTML='<span style="color:#cfe8da;opacity:.7;margin:auto">Mesa vacía</span>';return}
-  const items=chainRects(h);
-  let y0=-4.6,y1=4.6;items.forEach(i=>{y0=Math.min(y0,i.r.y-.3);y1=Math.max(y1,i.r.y+i.r.h+.3)});
-  const x0=-BOUND-.35,W=2*BOUND+.7;
+  // probar varios anchos de fila y quedarse con el que da las fichas más grandes
+  const cw=el.clientWidth||300,ch=Math.max(120,(el.clientHeight||300)-54);
+  let best=null;
+  for(const bd of [9.15,8.15,7.15,6.15,5.15,4.15]){
+    BOUND=bd;const its=chainRects(h);
+    let a=1e9,b=-1e9,c=1e9,d=-1e9;
+    its.forEach(i=>{a=Math.min(a,i.r.x);b=Math.max(b,i.r.x+i.r.w);c=Math.min(c,i.r.y);d=Math.max(d,i.r.y+i.r.h)});
+    const P=.3,w=b-a+2*P,hh=d-c+2*P,sc=Math.min(cw/w,ch/hh,cw/9);
+    if(!best||sc>best.sc*1.04)best={sc,its,x0:a-P,y0:c-P,w,hh};
+  }
+  const items=best.its,x0=best.x0,y0=best.y0,W=best.w,y1=y0+best.hh;
   let g='';
   for(const it of items){
     const r=it.r,wide=r.w>r.h;
@@ -312,7 +320,8 @@ function renderBoard(h){
     if(wide){if(it.first==="R"){ax=r.x+1}else{bx=r.x+1}}
     else{if(it.first==="B"){ay=r.y+1}else{by=r.y+1}}
     const hl=it.k===h.last;
-    g+='<g><rect x="'+(r.x+.04)+'" y="'+(r.y+.04)+'" width="'+(r.w-.08)+'" height="'+(r.h-.08)+'" rx=".14" fill="#fbf8f0" stroke="'+(hl?"#ffd54a":"#2b2b2b")+'" stroke-width="'+(hl?.12:.035)+'"/>';
+    g+='<g><rect x="'+(r.x+.1)+'" y="'+(r.y+.13)+'" width="'+(r.w-.14)+'" height="'+(r.h-.14)+'" rx=".14" fill="#00000055"/>';
+    g+='<rect x="'+(r.x+.07)+'" y="'+(r.y+.07)+'" width="'+(r.w-.14)+'" height="'+(r.h-.14)+'" rx=".14" fill="'+(hl?"#fff6c8":"#fbf8f0")+'" stroke="'+(hl?"#ffb300":"#1e1e1e")+'" stroke-width="'+(hl?.14:.06)+'"/>';
     g+=wide?'<line x1="'+(r.x+1)+'" y1="'+(r.y+.14)+'" x2="'+(r.x+1)+'" y2="'+(r.y+r.h-.14)+'" stroke="#555" stroke-width=".035"/>'
            :'<line x1="'+(r.x+.14)+'" y1="'+(r.y+1)+'" x2="'+(r.x+r.w-.14)+'" y2="'+(r.y+1)+'" stroke="#555" stroke-width=".035"/>';
     g+='<g fill="#111">'+pipsSVG(it.a,ax,ay,wide)+pipsSVG(it.b,bx,by,wide)+'</g></g>';
