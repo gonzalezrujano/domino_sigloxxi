@@ -304,12 +304,13 @@ function renderBoard(h){
   if(!h.B.length){el.innerHTML='<span style="color:#cfe8da;opacity:.7;margin:auto">Mesa vacía</span>';return}
   // probar varios anchos de fila y quedarse con el que da las fichas más grandes
   const cw=el.clientWidth||300,ch=Math.max(120,(el.clientHeight||300)-54);
+  const UMAX=52; // px máximos por unidad (media ficha): evita fichas gigantes en pantallas grandes
   let best=null;
   for(const bd of [9.15,8.15,7.15,6.15,5.15,4.15]){
     BOUND=bd;const its=chainRects(h);
     let a=1e9,b=-1e9,c=1e9,d=-1e9;
     its.forEach(i=>{a=Math.min(a,i.r.x);b=Math.max(b,i.r.x+i.r.w);c=Math.min(c,i.r.y);d=Math.max(d,i.r.y+i.r.h)});
-    const P=.3,w=b-a+2*P,hh=d-c+2*P,sc=Math.min(cw/w,ch/hh,cw/9);
+    const P=.3,w=b-a+2*P,hh=d-c+2*P,sc=Math.min(cw/w,ch/hh,cw/9,UMAX);
     if(!best||sc>best.sc*1.04)best={sc,its,x0:a-P,y0:c-P,w,hh};
   }
   const items=best.its,x0=best.x0,y0=best.y0,W=best.w,y1=y0+best.hh;
@@ -326,7 +327,7 @@ function renderBoard(h){
            :'<line x1="'+(r.x+.14)+'" y1="'+(r.y+1)+'" x2="'+(r.x+r.w-.14)+'" y2="'+(r.y+1)+'" stroke="#555" stroke-width=".035"/>';
     g+='<g fill="#111">'+pipsSVG(it.a,ax,ay,wide)+pipsSVG(it.b,bx,by,wide)+'</g></g>';
   }
-  el.innerHTML='<svg viewBox="'+x0+' '+y0+' '+W+' '+(y1-y0)+'" preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision">'+g+'</svg>';
+  el.innerHTML='<svg style="width:'+Math.min(cw,W*UMAX)+'px;height:'+Math.min(ch,(y1-y0)*UMAX)+'px" viewBox="'+x0+' '+y0+' '+W+' '+(y1-y0)+'" preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision">'+g+'</svg>';
 }
 function render(reveal){
   $("sA").textContent=S.score[0];$("sB").textContent=S.score[1];
